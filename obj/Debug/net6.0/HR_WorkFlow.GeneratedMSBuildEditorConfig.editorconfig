@@ -1,0 +1,91 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = HR_WorkFlow
+build_property.RootNamespace = HR_WorkFlow
+build_property.ProjectDir = C:\MOS_Project\HR_WorkFlow\HR_WorkFlow\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\MOS_Project\HR_WorkFlow\HR_WorkFlow
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Announcement/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXEFubm91bmNlbWVudFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Form/Leave.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXEZvcm1cTGVhdmUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Form/SignOff.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXEZvcm1cU2lnbk9mZi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Form/Withdraw.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXEZvcm1cV2l0aGRyYXcuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Manage/Emp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXE1hbmFnZVxFbXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Manage/Employee.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXE1hbmFnZVxFbXBsb3llZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Query/Attendance.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXFF1ZXJ5XEF0dGVuZGFuY2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Query/DayOff.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXFF1ZXJ5XERheU9mZi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Query/QueryClassSchedule.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXFF1ZXJ5XFF1ZXJ5Q2xhc3NTY2hlZHVsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Module/Query/SignStatus.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW9kdWxlXFF1ZXJ5XFNpZ25TdGF0dXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MOS_Project/HR_WorkFlow/HR_WorkFlow/Pages/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-x4rim5mudc

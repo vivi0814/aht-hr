@@ -1,0 +1,225 @@
+﻿@page
+@using HR_WorkFlow.Services;
+@using System.Security.Claims;
+@using System.Data;
+@model HR_WorkFlow.Pages.Module.Query.DayOffModel
+@inject MenuBase MenuBase
+@inject Common Common
+@{
+    ViewData["Title"] = "DayOff";
+    ViewBag.ShowHeader = true;
+    ViewBag.Menu = MenuBase.GetMenu();
+    var userName = User.Identity?.Name;
+}
+<style>
+    .row{
+        margin:5px 0px;
+    }
+</style>
+    
+
+
+<body>
+    <form action="" method="post">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Time_Period" class="col-md-4 col-form-label text-start">查詢期間</label>
+                    <div class="col-md-7">
+                        <select id="Time_Period" name="Time_Period" class="form-select" aria-label="Default select example" asp-for="Time_Period">
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="EMP_No" class="col-md-4 col-form-label text-start">員工編號</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" value="@userName" asp-for="EMP_No" id="EMP_No" name="EMP_No">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Arrival_Date" class="col-md-4 col-form-label text-start">到職日</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Arrival_Date" id="Arrival_Date" name="Arrival_Date">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Seniority" class="col-md-4 col-form-label text-start">年資</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Seniority" id="Seniority" name="Seniority">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="PaidLeave_Hours" class="col-md-4 col-form-label text-start">特休時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="PaidLeave_Hours" id="PaidLeave_Hours" name="PaidLeave_Hours">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="PaidLeave_Taken" class="col-md-4 col-form-label text-start">已休特休</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="PaidLeave_Taken" id="PaidLeave_Taken" name="PaidLeave_Taken">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="PaidLeave_Left" class="col-md-4 col-form-label text-start">剩餘特休</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="PaidLeave_Left" id="PaidLeave_Left" name="PaidLeave_Left">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="CompTime_Hours" class="col-md-4 col-form-label text-start">補休時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="CompTime_Hours" id="CompTime_Hours" name="CompTime_Hours">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="CompTime_Taken" class="col-md-4 col-form-label text-start">已休補休</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="CompTime_Taken" id="CompTime_Taken" name="CompTime_Taken">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="CompTime_Left" class="col-md-4 col-form-label text-start">剩餘補休</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="CompTime_Left" id="CompTime_Left" name="CompTime_Left">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="PaidLeave_Expired" class="col-md-4 col-form-label text-start">到期特休</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="PaidLeave_Expired" id="PaidLeave_Expired" name="PaidLeave_Expired">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-md-4 ">
+                <div class="row">
+                    <label for="CompTime_Expired" class="col-md-4 col-form-label ">到期補休</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="CompTime_Expired" id="CompTime_Expired" name="CompTime_Expired">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="margin:20px;" />
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <p class="Leave_Head">
+                        已請假時數
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Personal_Leave" class="col-md-4 col-form-label text-start">事假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Personal_Leave" id="Personal_Leave" name="Personal_Leave">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Maternity_Leave" class="col-md-4 col-form-label text-start">產假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Maternity_Leave" id="Maternity_Leave" name="Maternity_Leave">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Parental_Leave" class="col-md-5 col-form-label text-start">育嬰假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Parental_Leave" id="Parental_Leave" name="Parental_Leave">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Sick_Leave" class="col-md-4 col-form-label text-start">病假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Sick_Leave" id="Sick_Leave" name="Sick_Leave">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Marriage_Leave" class="col-md-4 col-form-label text-start">婚假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Marriage_Leave" id="Marriage_Leave" name="Marriage_Leave">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Paternity_Leave" class="col-md-5 col-form-label text-start">陪產假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Paternity_Leave" id="Paternity_Leave" name="Paternity_Leave">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Official_Leave" class="col-md-4 col-form-label text-start">公假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Official_Leave" id="Official_Leave" name="Official_Leave">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Funeral_Leave" class="col-md-4 col-form-label text-start">喪假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Funeral_Leave" id="Funeral_Leave" name="Funeral_Leave">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Menstruation_Leave" class="col-md-5 col-form-label text-start">生理假時數</label>
+                    <div class="col-md-7">
+                        <input class="form-control" readonly type="text" maxlength="10" asp-for="Menstruation_Leave" id="Menstruation_Leave" name="Menstruation_Leave">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</body>

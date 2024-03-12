@@ -1,0 +1,43 @@
+﻿@page
+@using HR_WorkFlow.Services;
+@using System.Security.Claims;
+@inject MenuBase MenuBase
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+    ViewBag.Menu = MenuBase.GetMenu();
+    var userName = User.Identity?.Name;
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;  //取得使用者資訊
+}
+<form action="" method="post"  enctype="multipart/form-data">
+    <p>
+        <label for="text1">帳號:@(userName)</label>
+        <input type="text" asp-for="Username" />
+    </p>
+    <p>
+        <label for="text2">密碼:</label>
+        <input type="password"  asp-for="Password" />
+    </p>
+    <p><input type="submit" value="登入" /></p>
+    <p><button asp-page-handler="Add">新增</button></p>
+    <p><button asp-page-handler="Query">查詢
+    </button></p>
+    <p>
+        <button asp-page-handler="Export">
+            匯出
+        </button>
+    </p>
+    <p>
+        @* <button asp-page-handler="Import">
+            匯入
+        </button> *@
+        @* button to open a file chooser dialog *@
+        <button type="button" onclick="document.getElementById('file').click()">匯入</button>
+        <input type="file" id="file" style="display:none" onchange="document.getElementById('submit').click()" asp-for="ImportedFile" />
+        <button id="submit" style="display:none" asp-page-handler="Import">Submit</button>
+
+        <script>
+            
+        </script>
+    </p>
+</form>

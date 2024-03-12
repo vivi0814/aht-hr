@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HR_WorkFlow</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/HR_WorkFlow.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/side.css" asp-append-version="true" />
+    <style>
+        .custom-font {
+            font-family: '微軟正黑體', 'Microsoft JhengHei', sans-serif;
+            font-weight: bold;
+        }
+
+        body {
+            /* overflow-y: hidden; /* 隐藏垂直滚动条 */ */
+        }
+
+        .container-fluid {
+            overflow-y: auto; /* 添加滚动条 */
+            max-height: 100vh; /* 设置最大高度为视窗高度 */
+           /*  display: flex; */
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1; /* 主要内容区域占据剩余的高度 */
+            /* overflow-y: auto; /* 添加滚动条 */ */
+        }
+    </style>
+</head>
+<body class="body">
+    <header>
+        @if (ViewBag.ShowHeader ?? true)
+        {
+            @using System.Security.Claims;
+            @using HR_WorkFlow.Services;
+            @using Microsoft.AspNetCore.Http
+            @inject Common Common
+
+            // Get the session timeout from IConfiguration
+            TimeSpan? sessionTimeout = TimeSpan.FromMinutes(20);
+
+            var userName = Common.GetEmpNameName(User.Identity?.Name);
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;  //取得使用者資訊
+            var RoleNme = Common.GetRoleName(userRole?? "");            
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div style="display: flex;">
+                    <a>
+						<img src="~/img/logo.png"  alt="HR_WorkFlow" style="width: 100px; height: 35px;">
+                    </a>
+                    <div class="custom-font" style="font-size: 30px;color: grey;">HR_WorkFlow</div>
+                </div>
+                <div class="ms-auto custom-font">
+                    @if (sessionTimeout != null)
+                    {
+                        <text>
+                            <span id="countdown" class="text-danger" style="font-size: 20px"></span>
+                            <script>
+                                var seconds = @(sessionTimeout.Value.TotalSeconds);
+                                var countdown = document.getElementById("countdown");
+                                var timer = setInterval(function () {
+                                    seconds--;
+                                    // mm:ss
+                                    countdown.textContent = Math.floor(seconds / 60) + ":" + (seconds % 60).toString().padStart(2, "0");
+                                    if (seconds <= 0) {
+                                        clearInterval(timer);
+                                        window.location.href = "/login";
+                                    }
+                                }, 1000);
+                            </script>
+                        </text>
+                    }
+                    <a style="font-size: 20px">@(userName)</a>
+                    <a style="font-size: 20px">@(RoleNme)</a>
+                    <button class="btn btn-secondary" style="width:120px;height:40px;" onclick="window.location.href='/login'">登出</button>
+                </div>
+            </nav>
+        }
+        else
+        {
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div>
+                    <a>
+                        <img src="~/img/logo.png" alt="HR_WorkFlow" style="width: 100px; height: 35px;">
+                    </a>
+                </div>
+                <div class="custom-font" style="font-size: 30px;color: grey;">HR_WorkFlow</div>
+            </nav>
+        }       
+    </header>
+    <div class="container-fluid">
+        <div class="row">
+            @{
+                var menu = ViewBag.Menu as Dictionary<string, Dictionary<string, string>>;
+            }
+            @if (menu != null)
+            {
+                <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                    <div class="sidebar-sticky">
+                        <div class="dropdown">
+                            @foreach (var topLevelItem in menu)
+                            {
+                                <div style="margin-bottom: 10px;">
+                                   
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-secondary custom-font" style="width:120px;height:40px;" data-bs-toggle="dropdown" aria-expanded="false">
+                                            @topLevelItem.Key
+                                        </button>
+                                        <ul class="dropdown-menu position-static" aria-labelledby="dropdownMenu2">
+                                            @foreach (var subItem in topLevelItem.Value)
+                                            {
+                                                <li><a class="dropdown-item" href="@subItem.Value">@subItem.Key</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            }
+                        </div>                
+                    </div>
+                </nav>
+            }
+            <main role="main" class="col-md-9 ml-sm-auto px-4">
+                <script src="~/lib/jquery/dist/jquery.min.js"></script>
+                <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="~/js/site.js" asp-append-version="true"></script>
+                <div>
+                    <main role="main" class="pb-3">
+                        @RenderBody()
+                    </main>
+                </div>                          
+                @await RenderSectionAsync("Scripts", required: false)
+            </main>
+        </div>
+    </div>
+    <div>
+        <footer class="border-top footer text-muted">
+            <div class="container-fluid custom-font text-center">
+                &copy; 2023 - HR_WorkFlow 安惠資訊科技股份有限公司
+            </div>
+        </footer>
+    </div>
+    <div id="alertModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div style="background-color:#1A4E5B;color: white;font-weight: bold; font-family: '微軟正黑體', Arial, sans-serif;">
+                    提示訊息
+                </div>
+                <div class="modal-body" style="font-size:larger;font-weight: bold; font-family: '微軟正黑體', Arial, sans-serif;">
+                    @TempData["AlertMessage"]
+                </div>
+                <div style="text-align: center;margin-bottom: 5px;">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">確定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        @if (TempData["AlertMessage"] != null)
+        {
+            <text>
+                $(function () {
+                    // bootstrap 5 modal
+                    var myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
+                        keyboard: false
+                    });
+                    myModal.show();
+                });
+            </text>
+        }
+        function showAlertDialog(message) {
+            $("#alertModal .modal-body").text(message);
+            var myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
+                keyboard: false
+            });
+            myModal.show();
+        }
+    </script>
+    @if (TempData["Action"]?.Equals("Add") == true)
+    {
+         <form action="" method="post">
+            // show confirm with bootstrap modal
+            <div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="confirmModal" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            確認新增?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                            <button class="btn btn-primary" asp-page-handler="AddConfirm">確認新增</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <script>
+            $(function () {
+                var myModal = new bootstrap.Modal(document.getElementById('confirmModal'), {
+                    keyboard: false
+                });
+                myModal.show();
+            });
+        </script>
+    }
+</body>
+</html>

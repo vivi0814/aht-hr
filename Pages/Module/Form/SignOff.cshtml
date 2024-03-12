@@ -1,0 +1,165 @@
+﻿@page
+@using HR_WorkFlow.Services;
+@using System.Security.Claims;
+@using System.Data
+@model HR_WorkFlow.Pages.Module.Form.SignOffModel
+@inject MenuBase MenuBase
+@inject Common Common
+@{
+    ViewData["Title"] = "SignOff";
+    ViewBag.ShowHeader = true;
+    ViewBag.Menu = MenuBase.GetMenu();
+    ViewData["StatusOptions"] = Common.GetDropdownOptions("F01","SignOff");
+    var userName = User.Identity?.Name;
+    ViewData["Signer"] = Common.GetSigner(userName);
+}
+@* @inject Common GDO *@
+
+@* @{
+    // 引用共用函式
+    List<SelectListItem> stringListItem = GDO.GetDropdownOptions("F01");
+} *@
+
+
+
+<body>
+    <form action="" method="post">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="leave_no" class="col-md-3 col-form-label text-end">單號</label>
+                    <div class="col-md-8">
+                        <input class="form-control" type="text" placeholder="請輸入單號" maxlength="10" asp-for="Leave_No" id="leave_no">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="status" class="col-md-3 col-form-label text-end">狀態</label>
+                    <div class="col-md-8">
+                        <select class="form-select" aria-label="Default select example" asp-for="Status" id="status">
+                            
+                            @if (ViewData["StatusOptions"] != null)
+                            {
+                                
+                                @foreach (DataRow item in ((DataTable)ViewData["StatusOptions"]!).Rows)
+                                {
+                                    var statusValue = item[0].ToString();
+                                    var statusText = item[1].ToString();
+                                    
+                                    // 檢查是否為審核中或撤銷申請的狀態
+                                    //if (statusValue == "1" || statusValue == "5")
+                                    //{
+                                        
+                                        <option value="@item[0]">@item[1]</option>
+                                        @* <option value="@statusValue" selected="@statusValue == " 1"">@statusText</option> *@
+                                    //}
+                                    
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="create_date" class="col-md-5 col-form-label text-end">建檔時間</label>
+                    <div class="col-md-7">
+                        <input type="date" class="form-control" asp-for="Create_Date" id="create_date">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 d-md-flex justify-content-md-between button mt-3">
+                <div class="d-grid gap-4 d-md-flex">
+                    <button asp-page-handler="Query" class="btn btn-outline-secondary ">查詢</button>
+                </div>
+                <div class="d-grid gap-4 d-md-flex">
+                    <button asp-page-handler="Submit" class="btn btn-primary">通過</button>
+                    <button asp-page-handler="Reject" class="btn btn-outline-primary">駁回</button>
+                    <button asp-page-handler="CancelApproved" class="btn btn-outline-success">撤銷通過</button>
+                    <button asp-page-handler="CancelRejected" class="btn btn-outline-success">撤銷駁回</button>
+                </div>
+            </div>
+        </div>
+
+        <hr style="margin:20px;" />
+
+        
+        <table class="row leave_result">
+            <thead>
+                <tr class="d-flex align-items-center py-2" style="background-color:gainsboro;border-radius:3px">
+                    <th class="col-1 text-center">
+                        <label for="selectAll">全選</label>
+                        <input type="checkbox" id="selectAll" />
+                    </th>
+                    <th class="col-2 text-center">單號</th>
+                    <th class="col-1 text-center">員工</th>
+                    <th class="col-1 text-center">狀態</th>
+                    <th class="col-1 text-center">假別</th>
+                    <th class="col-3 text-center">請假時間</th>
+                    <th class="col-1">事由</th>
+                    <th class="col-2 text-center">建檔時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewData["QueryResult"] is DataTable dataTable)
+                {
+                    <input type="text" id="ContentMessage" style="display: none;" />
+                    @foreach (DataRow row in ((DataTable)ViewData["QueryResult"]!).Rows)
+                    {
+                        <tr class="d-flex align-items-center" style="border-bottom:1px solid lightgrey">
+                            <td class="col-1 text-center">
+                                <input type="checkbox" name="selectedItems" class="select-checkbox" value="@row["Leave_No"]" />
+                            </td>
+                            <td class="col-2 text-center">@row["Leave_No"]</td>
+                            <td class="col-1 text-center">@row["Emp_Name"]</td>
+                            <td class="col-1 text-center">@row["StatusName"]</td>
+                            <td class="col-1 text-center">@row["LeaveName"]</td>
+                            <td class="col-3 text-center">@row["Start_Date"]<br />@row["End_Date"]</td>
+                            <td class="col-1" style="max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><a href="#" onclick=LeaveContent('@row["Leave_No"]','@row["Leave_Content"]')>@row["Leave_Content"]</a></td>
+                            <td class="col-2 text-center">@DateTime.Parse(row["Create_Date"].ToString()).ToShortDateString()</td>
+
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+
+
+
+    </form>
+
+    <script>
+        // 添加事件監聽器
+        document.getElementById('selectAll').addEventListener('change', function () {
+            var checkboxes = document.querySelectorAll('.select-checkbox');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = document.getElementById('selectAll').checked;
+            });
+
+            // 更新選中的項目
+            updateSelectedIds();
+        });
+
+        // 添加事件監聽器
+        var checkboxes = document.querySelectorAll('.select-checkbox');
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                updateSelectedIds();
+            });
+        });
+
+        
+
+        function LeaveContent(LeaveNo, LeaveContent) {
+            showAlertDialog(LeaveNo + LeaveContent);
+            // document.getElementById("ContentMessage").value = LeaveNo + LeaveContent;
+            // alert("aa")
+            // @ViewData["AlertMessage"]=ContentMessage.value;
+        }
+        
+
+    </script>
+
+</body>

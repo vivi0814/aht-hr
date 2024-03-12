@@ -1,0 +1,354 @@
+﻿@page
+@model HR_WorkFlow.Pages.Module.Manage.EmployeeModel
+@using HR_WorkFlow.Services;
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Antiforgery
+@using System.Data;
+
+@inject MenuBase MenuBase
+@inject Common Common
+@inject IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "Employee";
+    ViewBag.ShowHeader = true;
+    ViewBag.Menu = MenuBase.GetMenu();
+    ViewData["Status"] = Common.GetDropdownOptions("P01","");
+    ViewData["Role"] = Common.GetDropdownOptions("C01","");
+    ViewData["Department"] = Common.GetDropdownOptions("D01","");
+    ViewData["Position"] = Common.GetDropdownOptions("T01","");
+    var antiForgery = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+}
+<body>
+    <form method="post">
+
+        <div class="row">
+            
+            <div class="col-md-6 leave-item">
+                @* col-1:員工編號 *@
+                <div class="row my-3">
+                    <label for="EMP_No" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>員工編號</label>
+                  
+                    <div class="col-md-7">
+                        <input type="text" class="form-control text-uppercase" id="EMP_No" name="EMP_No" maxlength="9" asp-for="EMP_No">
+                    </div>
+                </div>
+                @* col-1:員工姓名 *@
+                <div class="row my-3">
+                    <label for="EMP_Name" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>員工姓名</label>
+                    <div class="col-md-7">
+                        <input type="text" class="form-control" id="EMP_Name" name="EMP_Name" maxlength="9" asp-for="EMP_Name">
+                    </div>
+                </div>
+                @* col-1:原始到職日 *@
+                <div class="row my-3">
+                    <label for="Arrival_Date" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 原始到職日</label>
+                    <div class='col-md-7'>
+                        <input type='date' class="form-control" asp-for="Arrival_Date" id="Arrival_Date" />
+                    </div>
+                </div>
+                @* col-1:實際到職日 *@
+                <div class="row my-3">
+                    <label for="Actual_Arrival_Date" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 到職日</label>
+                    <div class='col-md-7'>
+                        <input type='date' class="form-control" asp-for="Actual_Arrival_Date" id="Actual_Arrival_Date" />
+                    </div>
+                </div>
+                @* col-1:年資 *@
+                <div class="row my-3">
+                    <label for="Job_Tenure" class="col-md-4 col-form-label text-end form-label"> 年資</label>
+                    <div class='col-md-7 d-flex align-items-end'>
+                        <p id="jobTenure" class="mt-2" asp-for="jobTenure">@ViewData["JobTenure"]</p>
+                        @* <p id="jobTenure" class="mt-2">@ViewData["JobTenure"]</p> *@
+                    </div>
+                </div>
+                @* col-1:部門別 *@
+                <div class="row my-3">
+                    <label for="Department" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 部門別</label>
+                    <div class="col-md-7">
+                        <select class="form-select" aria-label="Default select example" id="Department" asp-for="Department">
+                            @if (ViewData["Department"] != null)
+                            {
+                                @foreach (DataRow item in ((DataTable)ViewData["Department"]!).Rows)
+                                {
+                                    <option value="@item["Code_No"]">@item["Code_Name"]</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            @* col-1:職稱 *@
+            <div class="row my-3">
+                    <label for="Position" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 職稱</label>
+                <div class="col-md-7">
+                        <select class="form-select" aria-label="Default select example" id="Position" asp-for="Position">
+                            @if (ViewData["Position"] != null)
+                            {
+                                @foreach (DataRow item in ((DataTable)ViewData["Position"]!).Rows)
+                                {
+                                    <option value="@item["Code_No"]">@item["Code_Name"]</option>
+                                }
+                            }
+                    </select>
+                </div>
+            </div>
+        @* col-1:權限 *@
+        <div class="row my-3">
+                    <label for="Role" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 權限</label>
+            <div class="col-md-7">
+                        <select class="form-select" aria-label="Default select example" id="Role" asp-for="Role">
+                            @if (ViewData["Role"] != null)
+                            {
+                                @foreach (DataRow item in ((DataTable)ViewData["Role"]!).Rows)
+                                {
+                                    <option value="@item["Code_No"]">@item["Code_Name"]</option>
+                                }
+                            }
+                </select>
+            </div>
+        </div>
+        @* col-1:簽核主管 *@
+        <div class="row my-3">
+                <label for="Sign_No" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 簽核主管</label>
+            <div class="col-md-7">
+                        <select class="form-select" aria-label="Default select example" id="Sign_No" name="Sign_No" asp-for="Sign_No" >
+                            <option value="" selected></option>
+                            <option value="AH032">劉尙綸</option>
+                            <option value="AH001">考叔</option>
+                </select>
+            </div>
+        </div>
+            @* col-1:代理主管 *@
+            <div class="row my-3">
+                    <label for="Agent" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 代理主管</label>
+                <div class="col-md-7">
+                        <select class="form-select" aria-label="Default select example" id="Agent" name="Agent" asp-for="Agent">
+                        <option value="" selected></option>
+                            <option value="AH032">劉尙綸</option>
+                            <option value="AH001">考叔</option>
+                    </select>
+                </div>
+            </div>
+            @* col-1:狀態 *@
+            <div class="row my-3">
+                    <label for="Status" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 狀態</label>
+                <div class="col-md-7">
+                        <select class="form-select" aria-label="Default select example" id="Status" asp-for="Status">
+                                
+                            @if (ViewData["Status"] != null)
+                                {
+                                @foreach (DataRow item in ((DataTable)ViewData["Status"]!).Rows)
+                                    {
+                                        <option value="@item["Code_No"]">@item["Code_Name"]</option>
+                                    }
+                                }
+                    </select>
+                </div>
+            </div>
+                @* col-1:離職日 *@
+                <div class="row my-3">
+                    <label for="Resignation_Date" class="col-md-4 col-form-label text-end form-label"> 離職日</label>
+                    <div class='col-md-7'>
+                        <input type='date' class="form-control" id="Resignation_Date" asp-for="Resignation_Date" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 leave-item ">
+                @* col-2:性別 *@
+                <div class="row my-3">
+                    <label for="Gender" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 性別</label>
+                    <div class="col-md-7">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="Gender" id="flexRadioDefault1" value="男" @(Model.Gender == "男" ? "checked" : "")>
+                            <label class="form-check-label" for="flexRadioDefault1">
+                                男
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="Gender" id="flexRadioDefault2" value="女" @(Model.Gender == "女" ? "checked" : "")>
+                            <label class="form-check-label" for="flexRadioDefault2">
+                               女
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                @* col-2:生日 *@
+                <div class="row my-3">
+                    <label for="Date_Of_Birth" class="col-md-4 col-form-label text-end form-label"><span style="color:red">*</span> 生日</label>
+                    <div class='col-md-7'>
+                        <input type='date' class="form-control" id="Date_Of_Birth" name="Date_Of_Birth" asp-for="Date_Of_Birth" />
+                    </div>
+                </div>
+                @* col-2:身分證字號 *@
+                <div class="row my-3">
+                    <label for="ID" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>身分證字號</label>
+                    <div class="col-md-7">
+                        <input type="text" class="form-control text-uppercase" id="ID" name="ID" maxlength="10" asp-for="ID">
+                    </div>
+                </div>
+                @* col-2:手機 *@
+                <div class="row my-3">
+                    <label for="Cellphone" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>手機</label>
+                    <div class="col-md-7">
+                        <input type="tel" class="form-control" id="Cellphone" name="Cellphone" maxlength="10" asp-for="Cellphone">
+                    </div>
+                </div>
+                @* col-2:通訊電話 *@
+                <div class="row my-3">
+                    <label for="Telephone" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>通訊電話</label>
+                    <div class="col-md-7">
+                        <input type="tel" class="form-control" id="Telephone" name="Telephone" maxlength="10" asp-for="Telephone">
+                    </div>
+                </div>
+                @* col-2:通訊地址 *@
+                <div class="row my-3">
+                    <label for="Address" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>通訊地址</label>
+                    <div class="col-md-7">
+                        <input type="text" class="form-control" id="Address" name="Address" asp-for="Address">
+                    </div>
+                </div>
+                @* col-2:戶籍地址 *@
+                <div class="row my-3">
+                    <label for="Residence_address" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>戶籍地址</label>
+                    <div class="col-md-7">
+                        <input type="text" class="form-control" id="Residence_address" name="Residence_address" asp-for="Residence_address">
+                    </div>
+                </div>
+                @* col-2:E-MAIL *@
+                <div class="row my-3">
+                    <label for="Email" class="col-md-4 col-form-label text-end"><span style="color:red">*</span>E-MAIL</label>
+                    <div class="col-md-7">
+                        <input type="email" class="form-control" id="Email" name="Email" placeholder="name@example.com" asp-for="Email">
+                    </div>
+                </div>
+                @* col-2:緊急聯絡人 *@
+                <div class="row my-3">
+                    <label for="Emergency_Contact" class="col-md-4 col-form-label text-end"><span style="color:red">*</span> 緊急聯絡人</label>
+                    <div class="col-md-7">
+                        <input type="text" class="form-control" id="Emergency_Contact" name="Emergency_Contact" asp-for="Emergency_Contact">
+                    </div>
+                </div>
+                @* col-2:緊急聯絡人電話 *@
+                <div class="row my-3">
+                    <label for="Emergency_Contact_Phone" class="col-md-4 col-form-label text-end"><span style="color:red">*</span> 聯絡人電話</label>
+                    <div class="col-md-7">
+                        <input type="tel" class="form-control" id="Emergency_Contact_Phone" name="Emergency_Contact_Phone" maxlength="10" asp-for="Emergency_Contact_Phone">
+                    </div>
+                </div>
+            </div>
+            
+            @*按鈕元件 *@
+            <div class="col-12 d-md-flex justify-content-md-between">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button asp-page-handler="Add" class="btn btn-outline-primary">新增</button>
+                    <button asp-page-handler="Search" class="btn btn-outline-secondary">查詢</button>
+                    <button asp-page-handler="Updated" class="btn btn-outline-success">更新</button>
+                </div>
+                <div class="d-grid gap-2 d-md-flex">
+                    <button asp-page-handler="Reset" class="btn btn-primary">密碼重置</button>
+                    <button asp-page-handler="Clear" class="btn btn-outline-primary">清除</button>
+                </div>
+            </div>
+            <hr style="margin:20px;" />
+
+            @*顯示列表 *@
+            <table class="row leave_result">
+                <thead>
+                    <tr class="d-flex justify-content-center py-2" style="background-color:gainsboro;border-radius:3px">
+                        <th class="col-1 text-center">員工編號</th>
+                        <th class="col-2 text-center">員工姓名</th>
+                        <th class="col-2 text-center">部門別</th>
+                        <th class="col-2 text-center">職稱</th>
+                        <th class="col-2 text-center">權限</th>
+                        <th class="col-1 text-center">簽核主管</th>
+                        <th class="col-1 text-center">代理主管</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewData["QueryEmployeeData"] != null)
+                    {
+
+                        @foreach (DataRow item in ((DataTable)ViewData["QueryEmployeeData"]!).Rows)
+                        {
+                            <tr class="d-flex justify-content-center my-2 align-self-center" style="border-bottom:1px solid lightgrey">
+                                <td class="col-1 text-center">
+                                    <a data-empno="@item["EMP_No"]" asp-page-handler="Edit" asp-route-empno="@item["EMP_No"]">
+                                        @item["EMP_No"]
+                                        </a>
+                                </td>
+                                <td class="col-2 text-center">@item["EMP_Name"]</td>
+                                <td class="col-2 text-center">@item["Dept"]</td>
+                                <td class="col-2 text-center">@item["PositionName"]</td>
+                                <td class="col-2 text-center">@item["Rol"]</td>
+                                <td class="col-1 text-center">@item["SignNo"]</td>
+                                <td class="col-1 text-center">@item["S_Agent"]</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            var empNoInput = document.getElementById('EMP_No');
+            var idInput = document.getElementById('ID');
+            var jobTenureElement = document.getElementById('jobTenure');
+            // 在頁面載入時觸發一次計算，獲取初始值
+            await updateJobTenure();
+           
+            // 添加事件監聽器，當輸入框的值改變時轉換為大寫
+            empNoInput.addEventListener('input', function () {
+                empNoInput.value = empNoInput.value.toUpperCase();
+
+            });
+
+            // 添加事件監聽器，當輸入框的值改變時轉換為大寫
+            idInput.addEventListener('input', function () {
+                idInput.value = idInput.value.toUpperCase();
+            });
+
+            document.getElementById('Actual_Arrival_Date').addEventListener('input', async function () {
+                // 當 Actual_Arrival_Date 的值改變時觸發計算
+                await updateJobTenure();
+            });
+
+            // 定義一個函數來觸發計算並更新 jobTenure 的值
+            async function updateJobTenure() {
+                // 獲取到職日的值
+                var arrivalDate = document.getElementById('Actual_Arrival_Date').value;
+
+                try {
+                    // 使用 fetch 將計算好的值傳送到後端
+                    var response = await fetch('@Url.Page("", "CalculateJobTenure")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': '@antiForgery'
+                        },
+                        body: JSON.stringify({
+                            Actual_Arrival_Date: new Date(arrivalDate).toISOString()
+                        })
+                    });
+
+                    var data = await response.json();
+                    console.log(data);
+                    // 在這裡處理後端返回的計算結果，例如更新 UI 或其他操作
+                    if (data.success) {
+                        // 更新 UI
+                        jobTenureElement.innerText = data.jobTenure + ' 天';
+                    } else {
+                        // 如果計算失敗，處理錯誤消息
+                        showAlertDialog(data.message);
+                    }
+                } catch (error) {
+                    console.error('發生錯誤:', error);
+                }
+            }
+                
+        });
+
+    </script>
+</body>
+

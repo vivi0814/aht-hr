@@ -1,0 +1,33 @@
+﻿@page
+@model HR_WorkFlow.Pages.LoginModel
+
+@{
+	ViewData["Title"] = "Login";
+	ViewBag.ShowHeader = false;
+}
+
+<body>
+	<form method="post" >	
+		<div class="container-fluid align-items-center " style="max-width: 400px;">
+			<div class="card p-5">
+				<div class="mb-1">
+					<label for="username" class="form-label">帳號:</label>
+					<input type="text"  id="username" name="username">
+				</div>
+
+				<div class="mb-1">
+					<label for="password" class="form-label">密碼:</label>
+					<input type="password"  id="password" name="password">
+				</div>
+
+				<div>
+					<button type="submit" class="btn btn-secondary" >登入</button>
+				</div>
+			</div>
+		</div>
+	</form>
+</body>
+
+
+
+

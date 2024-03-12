@@ -1,0 +1,204 @@
+﻿@page
+@using HR_WorkFlow.Services
+@using System.Security.Claims
+@using static HR_WorkFlow.Pages.Module.Query.AttendanceModel
+@using System.Data
+@model HR_WorkFlow.Pages.Module.Query.AttendanceModel
+@inject MenuBase MenuBase
+@inject Common Common
+
+@{
+    ViewData["Title"] = "Attendance";
+    ViewBag.ShowHeader = true;
+    ViewBag.Menu = MenuBase.GetMenu();
+    ViewData["ABS_StatusOptions"] = Common.GetDropdownOptions("Q01", "");
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+}
+<style>
+    #pagination {
+        text-align: center;
+        margin-top: 10px; /* 調整上邊距 */
+    }
+
+        #pagination a {
+            margin: 0 5px; /* 調整每個按鈕的間距 */
+            display: inline-block;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+</style>
+
+
+
+<body>
+    <form action="" method="post">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label asp-for="Start_Time" class="col-md-4 col-form-label text-end">時間(起):</label>
+                    <div class="col-md-8">
+                        <input type="Date" class="form-control" asp-for="Start_Time" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="row">
+                    <label asp-for="End_Time" class="col-md-4 col-form-label text-end">時間(迄):</label>
+                    <div class="col-md-8">
+                        <input type="Date" class="form-control" asp-for="End_Time">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="Status" class="col-md-4 col-form-label text-end">狀態:</label>
+                    <div class="col-md-6">
+                        <select class="form-select" asp-for="Status" aria-label="Default select example">
+                            @if (ViewData["ABS_StatusOptions"] != null)
+                            {
+                                @foreach (DataRow item in ((DataTable)ViewData["ABS_StatusOptions"]!).Rows)
+                                {
+                                    <option value="@item["Code_No"]">@item["Code_Name"]</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            @if (userRole == "9")
+            {
+                <div class="row">
+                    <div class="col-md-4 my-3 ">
+                        <div class="row">
+                            <label for="Status" class="col-md-4 col-form-label text-end">員工姓名:</label>
+                            <div class="col-md-8">
+                                <select class="form-select" asp-for="Status" aria-label="Default select example">
+                                    @* 我這裡沒做事 申請平台協助我組成多選選單 *@
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        <div class="col-12 d-md-flex justify-content-md-between">
+            <div class="d-grid gap-2 d-md-flex">
+                <button asp-page-handler="Query" class="btn btn-outline-secondary">查詢</button>
+                <button asp-page-handler="Export" class="btn btn-outline-success">匯出</button>
+            </div>
+        </div>
+        <hr style="margin:20px;" />
+
+        <table class="row Attendance_result1 data-table" id="data-table">
+            <thead>
+                <tr class="d-flex align-items-center py-2" style="background-color:gainsboro;border-radius:3px">
+
+                    <th class="col-2 text-center">日期</th>
+                    <th class="col-2 text-center">上班時間</th>
+                    <th class="col-2 text-center">下班時間</th>
+                    <th class="col-2 text-center">出勤時數</th>
+                    <th class="col-2 text-center">狀態</th>
+                    <th class="col-2 text-center">出勤狀況</th>
+                </tr>
+            </thead>
+            @if (Model.Absence_Table?.Rows.Count > 0)
+            {
+                <tbody class="Attendance_table row">
+                    @if (ViewData["QueryResult"] is DataTable dataTable)
+                    {
+                        foreach (DataRow row in Model.Absence_Table.Rows)
+                        {
+                            <tr class="data-row d-flex align-items-center py-2 ms-2" style="border-bottom:1px solid lightgrey">
+                                <td class="col-2 text-center">@DateTime.Parse(row["Date"].ToString()).ToString("yyyy-MM-dd")</td>
+                                <td class="col-2 text-center">@DateTime.Parse(row["Punch_In_Time"].ToString()).ToString("HH:mm:ss")</td>
+                                <td class="col-2 text-center">@DateTime.Parse(row["Punch_Out_Time"].ToString()).ToString("HH:mm:ss")</td>
+                                <td class="col-2 text-center">@row["Working_Hours"]</td>
+                                <td class="col-2 text-center">@row["Attendance_Status"]</td>
+                                <td class="col-2 text-center">@row["Attendance_Condition"]</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            }
+        </table>
+       <div id="pagination"></div>
+
+    </form>
+        
+        <div class="SignStatus_title1 container">
+            <div style="text-align: center;">
+                <script>
+                    const pageSize = 10;
+                    const table = document.getElementById('data-table');
+                    const pagination = document.getElementById('pagination');
+                    let currentPage = 1;
+
+
+                    function displayPage(page) {
+                        const rows = table.getElementsByClassName('data-row');
+                        // const rows = table.getElementsByClassName('data-row d-flex align-items-center');
+                        // data - row d - flex align - items - center
+                        const totalRows = rows.length;
+                        const totalPages = Math.ceil(totalRows / pageSize);
+                        currentPage = page;
+
+                        // 显示或隐藏行
+                        for (let i = 0; i < totalRows; i++) {
+                            rows[i].style.display = (i >= pageSize * (page - 1) && i < pageSize * page) ? '' : 'none';
+                        }
+
+                        // 清除舊的分頁連結
+                        pagination.innerHTML = '';
+
+                        // 添加“往前一頁”連結
+                        const prevLink = document.createElement('a');
+                        prevLink.href = '#';
+                        prevLink.textContent = '<';
+                        prevLink.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            if (page > 1) {
+                                displayPage(page - 1);
+                            }
+                        });
+                        pagination.appendChild(prevLink);
+
+                        // 添加數字連結
+                        for (let i = 1; i <= totalPages; i++) {
+                            const link = document.createElement('a');
+                            link.href = '#';
+                            link.textContent = i;
+                            link.addEventListener('click', (event) => {
+                                event.preventDefault();
+                                displayPage(i);
+                            });
+                            pagination.appendChild(link);
+                        }
+
+                        // 添加“往後一頁”連結
+                        const nextLink = document.createElement('a');
+                        nextLink.href = '#';
+                        nextLink.textContent = '>';
+                        nextLink.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            if (page < totalPages) {
+                                displayPage(page + 1);
+                            }
+                        });
+                        pagination.appendChild(nextLink);
+                    }
+                    displayPage(1); // 初始化显示第一页
+                </script>
+            </div>
+        </div>
+    
+</body>
+
+

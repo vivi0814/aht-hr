@@ -1,0 +1,123 @@
+﻿@page
+@using HR_WorkFlow.Services;
+@using System.Security.Claims;
+@using System.Data;
+@using Microsoft.AspNetCore.Antiforgery
+@inject MenuBase MenuBase
+@inject Common Common
+@inject IAntiforgery antiforgery
+@model HR_WorkFlow.Pages.Module.Query.QueryClassScheduleModel
+
+@{
+    ViewData["Title"] = "QueryClassSchedule";
+    ViewBag.ShowHeader = true;
+    ViewBag.Menu = MenuBase.GetMenu();
+    var antiForgery = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+    // ViewData["Status"] = Common.GetDropdownOptions("P01", "");
+}
+<style>
+
+    #calendar {
+        width: 80%;
+        margin: auto;
+    }
+
+    .fc .fc-col-header-cell-cushion, .fc .fc-daygrid-day-number {
+    color:black;
+    text-decoration:none;
+    }
+
+    .fc-direction-ltr .fc-daygrid-week-number{
+        text-decoration: none;
+    }
+</style>
+
+<body>
+    <div id='calendar'></div>
+    <script src="~/lib/fullcalendar/dist/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.2/dist/locale/zh-tw.js"></script>
+    <script>
+        var event = [];
+        document.addEventListener('DOMContentLoaded', async function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                dayMaxEvents: false,
+                headerToolbar: {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'today'
+                },
+                locale: 'zh-tw',
+                firstDay: 1,
+                weekNumbers: true,
+                weekNumberFormat: {
+                    week: 'numeric'
+                },
+                buttonText: {
+                    today: '今天'
+                },
+                dayHeaderFormat: {
+                    weekday: 'short'
+                },
+                dayHeaderContent: function (args) {
+                    // 將星期的英文全名轉換為中文
+                    var weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+                    return '星期' + weekdays[args.date.getDay()];
+                },
+                fixedWeekCount: false,
+                events: []
+            });
+            CalendarData(calendar);
+            calendar.render();
+        });
+        async function CalendarData(calendar) {
+            var response = await fetch('@Url.Page("", "CalendarData")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': '@antiForgery'
+                },
+                body: JSON.stringify(),
+            });
+            const res = await response.json();
+            
+            // 將 res 轉換為陣列
+            const dataArray = Array.isArray(res) ? res : JSON.parse(res);
+
+            function getEventColor(shift) {
+                switch (shift) {
+                    case '早班':
+                        return 'tblue';
+                    case '晚班':
+                        return 'green';
+                    case '中班':
+                        return 'orange';
+                    case '休息日':
+                        return 'gray';
+                    case '例假':
+                        return 'purple';
+                    case '國定假日':
+                        return 'lightpurple';
+                    default:
+                        return 'red';
+                }
+            }
+
+            dataArray.forEach(value => {
+                const eventColor = getEventColor(value['Shift']);
+                event.push({
+                    title: value['Shift'],
+                    start: value['HR_DAY'],
+                    end: value['HR_DAY'],
+                    color: eventColor
+                });
+            });
+
+            calendar.addEventSource(event);
+        }
+
+    </script>
+   
+</body>
+

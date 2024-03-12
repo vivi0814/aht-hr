@@ -1,0 +1,206 @@
+﻿@page
+@using HR_WorkFlow.Services;
+@using System.Security.Claims;
+@using System.Data
+@using System.Data.SqlClient
+@using SystemDataTable = System.Data.DataTable;
+@inject MenuBase MenuBase
+@using static HR_WorkFlow.Pages.Module.Query.SignStatusModel
+@model HR_WorkFlow.Pages.Module.Query.SignStatusModel
+@inject Common Common
+
+
+
+
+@{
+    ViewData["Title"] = "SignStatus";
+    ViewBag.ShowHeader = true;
+    ViewBag.Menu = MenuBase.GetMenu();
+    var userName = User.Identity?.Name;
+    ViewData["StatusOptions"] = Common.GetDropdownOptions("F01","");
+
+}
+<style>
+    #pagination {
+        text-align: center;
+        margin-top: 10px; /* 調整上邊距 */
+    }
+
+        #pagination a {
+            margin: 0 5px; /* 調整每個按鈕的間距 */
+            display: inline-block;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+</style>
+
+<body>
+    <form action="" method="post">
+        <div class="SignStatus_title container">
+            <div class="Title_up row">
+                <div class="col-md-4">
+                    <label asp-for="Start_Time">時間(起)</label>
+                    <input type="Date" class="form-control" asp-for="Start_Time" />
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="End_Time">時間(迄)</label>
+                    <input type="Date" class="form-control" asp-for="End_Time">
+
+                </div>
+
+                <div class="col-md-3">
+                    <label for="status" text-end">狀態</label>
+                        <select class="form-select"> @* aria-label="Default select example" asp-for="Status" id="status"> *@
+                            <option value=""></option>
+                            @if (ViewData["StatusOptions"] != null)
+                            {
+                                @foreach (DataRow item in ((DataTable)ViewData["StatusOptions"]!).Rows)
+                                {
+                                    <option value="@item[0]">@item[1]</option>
+                                }
+                            }
+                        </select>
+                </div> 
+            </div>
+
+
+            <div class="col-12 d-md-flex justify-content-md-between button mt-3">
+
+                <div class="d-grid gap-4 d-md-flex">
+                    <button asp-page-handler="Query" class="btn btn-outline-secondary">查詢</button>
+                    <button asp-page-handler="Clean" class="btn btn-outline-success">清除</button>
+                </div>
+            </div>
+
+        </div>
+
+        <hr style="margin:20px;" />
+       
+            <table class="row leave_result">
+                    <thead>
+                        <tr class="d-flex align-items-center py-2" style="background-color:gainsboro;border-radius:3px">
+                            <th class="col-2 text-center">請假單號</th>
+                               @*  <label for="selectAll">請假單號</label> *@
+                            @* </th> *@
+                            <th class="col-1 text-center">員工編號</th>
+                            <th class="col-1 text-center">員工姓名</th>
+                            <th class="col-1 text-center">假別</th>
+                            <th class="col-3 text-center">請假時間</th>
+                            <th class="col-1 text-center">請假時數</th>
+                            <th class="col-2 text-center">原因</th>
+                            <th class="col-1 text-center">審核狀態</th>
+                    </tr>
+                    </thead>
+            </table>
+       
+
+        <div class="Attendance_table row">
+            @if (Model.SignStatus?.Rows.Count > 0)  
+            {
+                <table id="data-table">
+
+                    <tbody>
+                        @foreach (DataRow row in Model.SignStatus.Rows)
+                        {
+                            <tr class="data-row" style="border-bottom:1px solid lightgrey">
+                                <td class="col-2 text-center">@row["Leave_No"].ToString()</td>
+                                <td class="col-1 text-center">@row["Emp_No"].ToString()</td>
+                                <td class="col-1 text-center">@row["Sign_No"].ToString()</td>
+                                <td class="col-1 text-center">@row["Leave_Name"].ToString()</td>
+                                <td class ="col-3 text-center">
+                                    @row["Start_Date"].ToString()
+                                    <br />
+                                    @row["End_Date"].ToString()
+                                </td>
+                                <td class="col-1 text-center">@row["Hours"].ToString()</td>
+                                <td class="col-2 text-center">@row["Leave_Content"].ToString()</td>
+                                <td class="col-1 text-center">@row["Status_Name"].ToString()</td>
+
+                            </tr>
+                        }
+                    </tbody>
+
+
+                 
+
+                </table>
+                <!-- 分页控制 -->
+                <div id="pagination"></div>
+                
+
+                <div class="SignStatus_title1 container">
+                    <div style="text-align: center;">
+                        <script>
+                            const pageSize = 8;
+                            const table = document.getElementById('data-table');
+                            const pagination = document.getElementById('pagination');
+                            let currentPage = 1;
+
+                            function displayPage(page) {
+                                const rows = table.getElementsByClassName('data-row');
+                                const totalRows = rows.length;
+                                const totalPages = Math.ceil(totalRows / pageSize);
+                                currentPage = page;
+
+                                // 显示或隐藏行
+                                for (let i = 0; i < totalRows; i++) {
+                                    rows[i].style.display = (i >= pageSize * (page - 1) && i < pageSize * page) ? '' : 'none';
+                                }
+
+                                // 清除舊的分頁連結
+                                pagination.innerHTML = '';
+
+                                // 添加“往前一頁”連結
+                                const prevLink = document.createElement('a');
+                                prevLink.href = '#';
+                                prevLink.textContent = '<';
+                                prevLink.addEventListener('click', (event) => {
+                                    event.preventDefault();
+                                    if (page > 1) {
+                                        displayPage(page - 1);
+                                    }
+                                });
+                                pagination.appendChild(prevLink);
+
+                                // 添加數字連結
+                                for (let i = 1; i <= totalPages; i++) {
+                                    const link = document.createElement('a');
+                                    link.href = '#';
+                                    link.textContent = i;
+                                    link.addEventListener('click', (event) => {
+                                        event.preventDefault();
+                                        displayPage(i);
+                                    });
+                                    pagination.appendChild(link);
+                                }
+
+                                // 添加“往後一頁”連結
+                                const nextLink = document.createElement('a');
+                                nextLink.href = '#';
+                                nextLink.textContent = '>';
+                                nextLink.addEventListener('click', (event) => {
+                                    event.preventDefault();
+                                    if (page < totalPages) {
+                                        displayPage(page + 1);
+                                    }
+                                });
+                                pagination.appendChild(nextLink);
+                            }
+                            displayPage(1); // 初始化显示第一页
+                        </script>
+                    </div>
+                </div>
+                
+            }
+            else
+            {
+                <p>找不到資料.</p>
+            }
+        </div>
+
+    </form>
+</body>

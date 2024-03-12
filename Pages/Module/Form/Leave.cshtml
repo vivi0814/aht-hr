@@ -1,0 +1,246 @@
+﻿@page
+@using HR_WorkFlow.Services;
+@using System.Security.Claims;
+@using System.Data;
+@using Microsoft.AspNetCore.Antiforgery
+@model HR_WorkFlow.Pages.Module.Form.LeaveModel
+@inject MenuBase MenuBase
+@inject Common Common
+@inject IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "Leave";
+    ViewBag.ShowHeader = true;
+    ViewBag.Menu = MenuBase.GetMenu();
+    ViewData["LeaveOptions"] = Common.GetDropdownOptions("L01","");
+    var userName = User.Identity?.Name;
+    ViewData["Signer"] = Common.GetSigner(userName);
+    var antiForgery = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+}
+
+<body>
+    <form method="post" novalidate>
+
+        <div class="row">
+            @* 特休天數 *@
+            <div class="col-12">特休剩    天      給薪病假剩    天      生理假    天</div>
+            
+            <div class="col-md-6 leave-item">
+                @* col-1:單號 *@
+                <div class="row my-4">
+                    <label for="leave_no" class="col-md-3 col-form-label text-end">單號</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="Leave_No" asp-for="Leave_No" name="Leave_No" maxlength="9" placeholder="僅供查詢使用,例:202312001">
+                    </div>
+                </div>
+                @* col-1:時間(起) *@
+                <div class="row my-4">
+                    <label for="Start_Date" class="col-md-3 col-form-label text-end form-label"><span style="color:red">*</span> 時間(起)</label>
+                    <div class='col-md-9'>
+                        <input type='datetime-local' asp-for="Start_Date" class="form-control" id="Start_Date" required name="Start_Date" />
+                    </div>
+                </div>
+                @* col-1:假別 *@
+                <div class="row my-4">
+                    <label for="Leave" class="col-md-3 col-form-label text-end form-label"><span style="color:red">*</span> 假別</label>
+                    <div class="col-md-9">
+                        <select class="form-select" asp-for="Leave" aria-label="Default select example" id="Leave" required name="Leave">
+                            @* <option value="" selected></option> *@
+                            @if (ViewData["LeaveOptions"] != null)
+                            {
+                                @foreach (DataRow item in ((DataTable)ViewData["LeaveOptions"]!).Rows)
+                                {
+                                    <option value="@item["Code_No"]">@item["Code_Name"]</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            @* col-2:時間(迄) *@
+            <div class="col-md-6 leave-item align-self-end">
+                <div class="row my-4">
+                    @*時數統計 *@
+                    <p class="text-end" id="Hours"></p>
+                    <label for="End_Date" class="col-md-3 col-form-label text-end form-label"><span style="color:red">*</span> 時間(迄)</label>
+                    <div class="col-md-9">
+                        <input type="datetime-local" asp-for="End_Date" class="form-control" id="End_Date" required name="End_Date" />
+                    </div>
+                </div>
+                @* col-2:簽核人 *@
+                <div class="row my-4">
+                    <label for="Sign_No" class="col-md-3 col-form-label text-end form-label"><span style="color:red">*</span> 簽核人</label>
+                    <div class="col-md-9">
+                        <select class="form-select" asp-for="Sign_No" aria-label="Default select example" id="Sign_No" required name="Sign_No">
+                            @if (ViewData["Signer"] != null)
+                            {
+                                @foreach (DataRow item in ((DataTable)ViewData["Signer"]!).Rows)
+                                {
+                                    <option value="@item["Emp_No"]">@item["Emp_Name"]</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            @*事由 *@
+            <div class="row my-4 mx-4">
+                <label for="Leave_Content" class="col-md-1 col-form-label text-end form-label"><span style="color:red">*</span> 事由</label>
+                <div class="col-md-10">
+                    <textarea class="form-control" asp-for="Leave_Content" id="Leave_Content" required name="Leave_Content" rows="4" placeholder="請輸入請假事由"></textarea>
+                </div>
+            </div>
+            @*按鈕元件 *@
+            <div class="col-12 d-md-flex justify-content-md-between">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button asp-page-handler="Add" class="btn btn-outline-primary">新增</button>
+                    <button asp-page-handler="Search" class="btn btn-outline-secondary" >查詢</button>
+                    <button asp-page-handler="Updated" class="btn btn-outline-success">更新</button>
+                    <button asp-page-handler="Delete" class="btn btn-outline-danger" >刪除</button>
+                </div>
+                <div class="d-grid gap-2">
+                    <button asp-page-handler="Send" class="btn btn-primary">提交</button>
+                </div>
+            </div>
+            <hr style="margin:20px;" />
+
+            @*顯示列表 *@
+            <table class="row leave_result">
+                <thead>
+                    <tr class="d-flex align-items-center py-2" style="background-color:gainsboro;border-radius:3px">
+                        <th class ="col-1 text-center">
+                            <label for="selectAll">全選</label>
+                        <input type="checkbox" id="selectAll"/>
+                        </th>
+                        <th class="col-2 text-center">單號</th>
+                        <th class="col-1 text-center">假別</th>
+                        <th class="col-4 text-center">時間</th>
+                        <th class="col-2">事由</th>
+                        <th class="col-1 text-center">狀態</th>
+                        <th class="col-1 text-center">簽核人</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewData["QueryLeaveData"] != null)
+                    {
+
+                        @foreach (DataRow item in ((DataTable)ViewData["QueryLeaveData"]!).Rows)
+                        {
+                            <tr class="d-flex align-items-center" style="border-bottom:1px solid lightgrey">
+                                <td class="col-1 text-center">
+                                    <input type="checkbox" name="selectedItems" class="select-checkbox" value="@item["Leave_No"]" />
+                                </td>
+                                <td class="col-2 text-center">
+                                    @* <a href="#" class="leave-no-link" data-leave-no="@item["Leave_No"]"> @item["Leave_No"] </a> *@
+                                    <a data-leave-no="@item["Leave_No"]" asp-page-handler="Edit" asp-route-leaveNo="@item["Leave_No"]">@item["Leave_No"]</a>
+                                </td>
+                                <td class="col-1 text-center">@item["LeaveName"]</td>
+                                <td class="col-4 text-center">@item["Start_Date"]<br />@item["End_Date"]</td>
+                                <td class="col-2" style="max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@item["Leave_Content"]</td>
+                                <td class="col-1 text-center">@item["StatusName"]</td>
+                                <td class="col-1 text-center">@item["SignNo"]</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+
+            </table>
+            
+
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // 頁面載入時先執行一次計算
+            await calculateTimeOnLoad();
+
+            // 添加事件監聽器
+            document.getElementById('Start_Date').addEventListener('change', calculateTime);
+            document.getElementById('End_Date').addEventListener('change', calculateTime);
+
+            async function calculateTimeOnLoad() {
+                // 取得當前的起始日期和結束日期
+                var startDate = new Date(document.getElementById('Start_Date').value);
+                var endDate = new Date(document.getElementById('End_Date').value);
+
+                // 呼叫計算函數
+                await calculateTime(startDate, endDate);
+            }
+
+            async function calculateTime() {
+                // 取得當前的起始日期和結束日期
+                var startDate = new Date(document.getElementById('Start_Date').value);
+                var endDate = new Date(document.getElementById('End_Date').value);
+
+                // ajax call to server
+                // nan check
+                if (isNaN(startDate) || isNaN(endDate) || endDate < startDate) {
+                    var hoursElement = document.getElementById('Hours');
+                    hoursElement.innerText = '請選擇有效的日期範圍';
+                    hoursElement.style.color = 'red';
+                    return;
+                } else {
+                    var hoursElement = document.getElementById('Hours');
+                    hoursElement.style.color = '';
+                }
+
+                // call api (fetch)
+                var response = await fetch('@Url.Page("", "CalculateTime")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': '@antiForgery'
+                    },
+                    body: JSON.stringify({
+                        startDate: startDate,
+                        endDate: endDate
+                    })
+                });
+
+                // get response
+                var result = await response.json();
+
+                // update UI
+                if (result.success) {
+                    var hoursElement = document.getElementById('Hours');
+                    hoursElement.innerText = result.days + '天' + result.hours + '小時';
+                    console.log(result.days, result.hours);
+                } else {
+                    var hoursElement = document.getElementById('Hours');
+                    hoursElement.innerText = result.message;
+                    hoursElement.style.color = 'red';
+                }
+            }
+        });
+
+        // 添加事件監聽器
+        document.getElementById('selectAll').addEventListener('change', function () {
+            var checkboxes = document.querySelectorAll('.select-checkbox');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = document.getElementById('selectAll').checked;
+            });
+
+            // 更新選中的項目
+            updateSelectedIds();
+        });
+
+        // 添加事件監聽器
+        var checkboxes = document.querySelectorAll('.select-checkbox');
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                updateSelectedIds();
+            });
+        });
+
+        function updateSelectedIds() {
+            var selectedIds = [];
+            var checkboxes = document.querySelectorAll('.select-checkbox:checked');
+            checkboxes.forEach(function (checkbox) {
+                selectedIds.push(checkbox.value);
+            });
+
+        }
+    </script>
+</body>
+
